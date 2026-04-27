@@ -353,7 +353,7 @@ export const CreateUserBase = async (
             throw new Error(`Registration failed: ${response.customerCreate.userErrors[0].message}`);
         }
     }
-
-    return response.customerCreate.customer;
+    console.log("Create response", response, response?.customerCreate, response?.customerCreate?.customer);
+    return response.customerCreate?.customer;
 
 };
