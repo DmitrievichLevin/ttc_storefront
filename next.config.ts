@@ -24,6 +24,7 @@ const nextConfig = {
         source: '/api/:path*',
         headers: [
           { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           {
             // Tailored CSP: 
@@ -33,6 +34,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: "default-src 'self'; img-src 'self' data: https://cdn.shopify.com; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' https://*.myshopify.com; object-src 'none'; base-uri 'self';",
           },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
         ],
       },
     ];

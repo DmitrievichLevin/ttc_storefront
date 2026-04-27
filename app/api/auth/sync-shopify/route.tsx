@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
       res.user = creationResult.user;
     }
-    console.log('checking found user', res);
+
     // 3. Update Encrypted Session (No PII)
     session.shopifyId = res.user!.id;
     session.fuid = res.user!.fuid;
