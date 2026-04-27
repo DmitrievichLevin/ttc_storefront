@@ -20,6 +20,7 @@ export async function POST(req: Request) {
         );
       }
       const creationResult = await res.create(info);
+      console.log(creationResult);
       res.user = creationResult.user;
     }
 
