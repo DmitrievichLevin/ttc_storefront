@@ -112,7 +112,7 @@ export async function shopifyFetch<T>({
     baseDelayMs?: number;
 }): Promise<T> {
     // Note: Consider moving the API version to an env var or config
-    const endpoint = `https://${shopifyDomain}/admin/api/2024-04/graphql.json`;
+    const endpoint = shopifyDomain!;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {

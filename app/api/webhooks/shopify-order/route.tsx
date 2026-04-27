@@ -73,7 +73,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const graphqlEndpoint = `https://${shopifyDomain}/admin/api/2024-04/graphql.json`;
+    const graphqlEndpoint = shopifyDomain;
 
     // 2. Find the REAL customer ID using the firebaseUid Metafield via Admin API
     // Note: To query by metafield, the definition must have "Storefront and admin search" enabled in Shopify Admin.
