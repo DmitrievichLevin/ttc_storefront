@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const session = await getSession(); //
-    console.log('checking session', session);
+
     // 1. Protection Check: If no session exists, return a clear 'logged out' state
     if (!session.isLoggedIn || !session.shopifyId) {
       return Response.json(
@@ -53,11 +53,11 @@ export async function GET() {
         { status: 200 }, // Standard practice for session checks
       );
     }
-    console.log('before get customer');
+
     // 2. Data Hydration: Re-fetch the full user object using the secure ID from the cookie
     // We use the same 'User' utility to maintain parity with the POST logic
     const res = await User(session.shopifyId as string);
-    console.log('after get customer');
+
     // 3. Validation: Handle cases where the Shopify user might have been deleted/changed
     if (!res.user) {
       // If the ID in the cookie is no longer valid, destroy the session
@@ -86,6 +86,24 @@ export async function GET() {
     console.error('[GET_AUTH_ERROR]:', error.message);
     return Response.json(
       { error: 'Failed to retrieve session data.' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE() {
+  try {
+    const session = await getSession();
+
+    // 1. Session Destruction: Clears the encrypted cookie from the user's browser
+    session.destroy();
+
+    // 2. Clean Return: Provide a clear state update for the frontend to consume
+    return Response.json({ success: true, isLoggedIn: false }, { status: 200 });
+  } catch (error: any) {
+    console.error('[SIGNOUT_ERROR]:', error.message);
+    return Response.json(
+      { error: 'Failed to complete sign out process.' },
       { status: 500 },
     );
   }
