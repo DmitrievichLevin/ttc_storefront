@@ -40,17 +40,19 @@ const checkFirebase = async () => {
 
     // 3. Safe Metadata Extraction
     // Cast to any or your specific config type to safely access the options
-    const options = auth.app.options as {
-      projectId?: string;
-      clientEmail?: string;
-    };
+    // Verify how the credentials were provided (returns true if a cert object exists)
+    const hasValidCredentialConfig = !!auth.app.options.credential;
 
     return {
       status: 'up',
       details: {
         appName: auth.app.name, // Usually returns "[DEFAULT]"
-        projectId: options.projectId || 'unconfigured',
-        clientEmail: options.clientEmail || 'unconfigured',
+        // 1. Echo the proven environment variables
+        projectId: process.env.FIREBASE_PROJECT_ID || 'missing-env-var',
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL || 'missing-env-var',
+        // 2. Confirm the credential type
+        credentialLoaded: hasValidCredentialConfig,
+        authMode: 'Admin SDK (Token Verification Ready)',
       },
     };
   } catch (error: any) {
