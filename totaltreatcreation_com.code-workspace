@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "path": "../totaltreatcreation_com",
+    },
+    {
+      "path": ".",
+    },
+  ],
+  "settings": {
+    "js/ts.tsdk.path": "ttc_storefront/node_modules/typescript/lib",
+  },
+}
