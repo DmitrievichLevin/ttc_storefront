@@ -342,14 +342,16 @@ export const CreateUserBase = async (
     });
 
     // 4. Detailed Error Reporting
-    if (response.customerCreate.userErrors.length > 0) {
-        const errorList = response.customerCreate.userErrors
-            .map(e => `[${e.field.join('.')}] ${e.message}`)
-            .join(', ');
+    if (response?.customerCreate?.userErrors) {
+        if (response.customerCreate.userErrors.length > 0) {
+            const errorList = response.customerCreate.userErrors
+                .map(e => `[${e.field.join('.')}] ${e.message}`)
+                .join(', ');
 
-        // Log the full error for debugging, but throw a clean message
-        console.error(`Shopify CreateUser Failed: ${errorList}`);
-        throw new Error(`Registration failed: ${response.customerCreate.userErrors[0].message}`);
+            // Log the full error for debugging, but throw a clean message
+            console.error(`Shopify CreateUser Failed: ${errorList}`);
+            throw new Error(`Registration failed: ${response.customerCreate.userErrors[0].message}`);
+        }
     }
 
     return response.customerCreate.customer;
