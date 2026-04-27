@@ -242,7 +242,7 @@ const UserQueryBase = (async (data: string): Promise<IShopifyUser | null> => {
     const { data: { CustomerById = { customer: null }, CustomerByPhone = { customer: null }, CustomerByFuid = { customer: null } } } = response;
 
     // Return just the user object (or null if not found)
-    return response.data.CustomerById.customer || response.data.CustomerByPhone.customer || response.data.CustomerByFuid.customer || null;
+    return CustomerById.customer || CustomerByPhone.customer || CustomerByFuid.customer || null;
 
 }) as UserQueryInterface;
 
@@ -347,7 +347,7 @@ export const CreateUserBase = async (
     });
 
     // 4. Detailed Error Reporting
-    if (response?.data?.customerCreate?.userErrors) {
+    if (response.data.customerCreate?.userErrors) {
         if (response.data.customerCreate.userErrors.length > 0) {
             const errorList = response.data.customerCreate.userErrors
                 .map(e => `[${e.field.join('.')}] ${e.message}`)
