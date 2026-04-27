@@ -180,7 +180,7 @@ export async function shopifyFetch<T>({
                 throw new FatalShopifyError('Failed to execute Shopify GraphQL query due to schema or syntax errors.');
             }
 
-
+            return result;
         } catch (error: any) {
             // FIX: Immediately break the retry loop if the error is explicitly marked as Fatal
             if (error instanceof FatalShopifyError) {
