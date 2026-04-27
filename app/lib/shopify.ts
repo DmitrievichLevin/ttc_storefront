@@ -239,6 +239,7 @@ const UserQueryBase = (async (data: string): Promise<IShopifyUser | null> => {
         query,
         variables
     });
+    console.log("check response", response);
     const { data: { CustomerById = { customer: null }, CustomerByPhone = { customer: null }, CustomerByFuid = { customer: null } } } = response;
 
     // Return just the user object (or null if not found)
