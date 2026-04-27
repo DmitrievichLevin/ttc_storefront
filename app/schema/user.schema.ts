@@ -77,7 +77,7 @@ const UserBase = (async (data: string): Promise<UserLookupResult> => {
   else {
     throw new Error("[User Utility]: Invalid identifier format.");
   }
-
+  console.log("raw user", rawUser);
   // 2. Return User if found
   if (rawUser) {
     const user: IUser = {

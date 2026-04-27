@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
       res.user = creationResult.user;
     }
-
+    console.log('checking found user', res);
     // 3. Update Encrypted Session (No PII)
     session.shopifyId = res.user!.id;
     session.fuid = res.user!.fuid;
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const session = await getSession(); //
-
+    console.log('checking session', session);
     // 1. Protection Check: If no session exists, return a clear 'logged out' state
     if (!session.isLoggedIn || !session.shopifyId) {
       return Response.json(
@@ -53,11 +53,11 @@ export async function GET() {
         { status: 200 }, // Standard practice for session checks
       );
     }
-
+    console.log('before get customer');
     // 2. Data Hydration: Re-fetch the full user object using the secure ID from the cookie
     // We use the same 'User' utility to maintain parity with the POST logic
     const res = await User(session.shopifyId as string);
-
+    console.log('after get customer');
     // 3. Validation: Handle cases where the Shopify user might have been deleted/changed
     if (!res.user) {
       // If the ID in the cookie is no longer valid, destroy the session
