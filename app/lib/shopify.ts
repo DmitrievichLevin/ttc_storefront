@@ -8,6 +8,14 @@ if (!shopifyDomain || !shopifyToken) {
     throw new Error('FATAL: Shopify Environment Variables are missing. Check SHOPIFY_STORE_DOMAIN and SHOPIFY_ADMIN_ACCESS_TOKEN.');
 }
 
+// Add this near the top of your shopify.ts file
+class FatalShopifyError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "FatalShopifyError";
+    }
+}
+
 // 2. Use GraphQL Fragments instead of string concatenation
 const UserFieldsFragment = `
   fragment UserFields on Customer {
@@ -168,12 +176,16 @@ export async function shopifyFetch<T>({
                 }
 
                 console.error('[Shopify GraphQL Error]:', JSON.stringify(result.errors, null, 2));
-                throw new Error('Failed to execute Shopify GraphQL query');
+                // FIX: Throw the custom Fatal error instead of a generic Error
+                throw new FatalShopifyError('Failed to execute Shopify GraphQL query due to schema or syntax errors.');
             }
 
-            return result.data as T;
 
         } catch (error: any) {
+            // FIX: Immediately break the retry loop if the error is explicitly marked as Fatal
+            if (error instanceof FatalShopifyError) {
+                throw error;
+            }
             // Catch unexpected network failures (e.g., DNS resolution failed, socket hang up)
             if (attempt === maxRetries) {
                 throw error; // Bubble up if we're out of retries
