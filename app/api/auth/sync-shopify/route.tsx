@@ -11,10 +11,10 @@ export async function POST(req: Request) {
 
     // 1. Initialize/Lookup User
     let res = await User(token);
-
+    console.log(res);
     // 2. Safe Creation Path
-    if (!res.user) {
-      if (!res.create) {
+    if (!res?.user) {
+      if (!res?.create) {
         throw new Error(
           'User not found and registration is unavailable. Please verify your token.',
         );
