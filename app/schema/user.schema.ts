@@ -2,7 +2,7 @@ import z from 'zod';
 import { AddressSchema, ISO8601Schema } from './address.schema';
 import { IOrder, OrderSchema } from './order.schema';
 import validate from '../utils/validate';
-import { getAuth } from 'firebase-admin/auth';
+import { auth } from '@/app/lib/firebase';
 import { CreateUserBase, IUserLoginData, UserQuery } from '../lib/shopify';
 
 
@@ -60,7 +60,7 @@ const UserBase = (async (data: string): Promise<UserLookupResult> => {
 
   // 1. Identify the Input Type
   if (validate.isFirebaseIdToken(data)) {
-    const decodedToken = await getAuth().verifyIdToken(data);
+    const decodedToken = await auth.verifyIdToken(data);
     verifiedFuid = decodedToken.uid as FirebaseUid;
     const phone = decodedToken.phone_number;
     rawUser = await UserQuery(phone as UsPhoneNumber);
