@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
     // 1. Initialize/Lookup User
     let res = await User(token);
-    console.log(res);
+    console.log('res', res);
     // 2. Safe Creation Path
     if (!res?.user) {
       if (!res?.create) {
@@ -19,9 +19,11 @@ export async function POST(req: Request) {
           'User not found and registration is unavailable. Please verify your token.',
         );
       }
+      console.log('made it here');
       const creationResult = await res.create(info);
-      console.log(creationResult);
-      res.user = creationResult.user;
+      console.log('creation result', creationResult);
+      res.user = creationResult?.user;
+      console.log('created user', res?.user);
     }
 
     // 3. Update Encrypted Session (No PII)
