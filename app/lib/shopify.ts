@@ -234,16 +234,16 @@ const UserQueryBase = (async (data: string): Promise<IShopifyUser | null> => {
     // Execute the fetch
     // We expect { customer: IShopifyUser } from our defined queries
     const response = await shopifyFetch<{
-        data: { CustomerById: { customer: IShopifyUser }, CustomerByPhone: { customer: IShopifyUser }, CustomerByFuid: { customer: IShopifyUser } }
+        data: { customer: IShopifyUser }
     }>({
         query,
         variables
     });
-    console.log("check response", response);
-    const { data: { CustomerById = { customer: null }, CustomerByPhone = { customer: null }, CustomerByFuid = { customer: null } } } = response;
+
+    const { data: { customer = null } } = response;
 
     // Return just the user object (or null if not found)
-    return CustomerById.customer || CustomerByPhone.customer || CustomerByFuid.customer || null;
+    return customer || null;
 
 }) as UserQueryInterface;
 
