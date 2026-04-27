@@ -332,9 +332,11 @@ export const CreateUserBase = async (
 
     // 3. Execute via your hardened fetch wrapper
     const response = await shopifyFetch<{
-        customerCreate: {
-            customer: IShopifyUser | null,
-            userErrors: Array<{ field: string[], message: string }>
+        data: {
+            customerCreate: {
+                customer: IShopifyUser | null,
+                userErrors: Array<{ field: string[], message: string }>
+            }
         }
     }>({
         query: CREATE_USER_MUTATION,
@@ -342,18 +344,18 @@ export const CreateUserBase = async (
     });
 
     // 4. Detailed Error Reporting
-    if (response?.customerCreate?.userErrors) {
-        if (response.customerCreate.userErrors.length > 0) {
-            const errorList = response.customerCreate.userErrors
+    if (response?.data?.customerCreate?.userErrors) {
+        if (response.data.customerCreate.userErrors.length > 0) {
+            const errorList = response.data.customerCreate.userErrors
                 .map(e => `[${e.field.join('.')}] ${e.message}`)
                 .join(', ');
 
             // Log the full error for debugging, but throw a clean message
             console.error(`Shopify CreateUser Failed: ${errorList}`);
-            throw new Error(`Registration failed: ${response.customerCreate.userErrors[0].message}`);
+            throw new Error(`Registration failed: ${response.data.customerCreate.userErrors[0].message}`);
         }
     }
-    console.log("Create response", response, response?.customerCreate, response?.customerCreate?.customer);
-    return response.customerCreate?.customer;
+
+    return response.data.customerCreate.customer;
 
 };
