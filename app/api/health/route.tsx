@@ -1,25 +1,64 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/app/lib/firebase';
-import { shopifyFetch } from '@/app/lib/shopify';
+import { shopifyFetch, UserQuery } from '@/app/lib/shopify';
 
 // 1. Define the dependencies we want to check
 const checkShopify = async () => {
   try {
-    // A minimal, low-cost query to verify API connectivity
-    await shopifyFetch({ query: '{ shop { name } }' });
-    return { status: 'up' };
+    // 1. Provide a syntactically valid dummy phone number
+    // It doesn't matter that this user doesn't exist; we only care if the query executes without a 400-level schema error.
+    const testPhone = '+15555555555' as UsPhoneNumber;
+
+    // 2. Execute the single critical auth path
+    await UserQuery(testPhone);
+
+    // 3. If it doesn't throw, the network is up, credentials are valid, and the schema matches Shopify's current API version.
+    return {
+      status: 'up',
+      details: 'Primary Phone Auth schema validated successfully.',
+    };
   } catch (error: any) {
-    return { status: 'down', error: error.message };
+    console.error('[SHOPIFY_HEALTH_FAILURE]:', error.message);
+
+    return {
+      status: 'down',
+      error: `Auth path failure: ${error.message}`,
+    };
   }
 };
 
 const checkFirebase = async () => {
   try {
-    // Verifying if the singleton is initialized and reachable
-    if (!auth.app) throw new Error('Firebase app not initialized');
-    return { status: 'up' };
+    // 1. Verify Local Initialization
+    if (!auth.app) {
+      throw new Error('Firebase app not initialized locally');
+    }
+
+    // 2. The True Network Ping
+    // Fetching just 1 user record proves the credentials work and Google's API is reachable.
+    await auth.listUsers(1);
+
+    // 3. Safe Metadata Extraction
+    // Cast to any or your specific config type to safely access the options
+    const options = auth.app.options as {
+      projectId?: string;
+      clientEmail?: string;
+    };
+
+    return {
+      status: 'up',
+      details: {
+        appName: auth.app.name, // Usually returns "[DEFAULT]"
+        projectId: options.projectId || 'unconfigured',
+        clientEmail: options.clientEmail || 'unconfigured',
+      },
+    };
   } catch (error: any) {
-    return { status: 'down', error: error.message };
+    // If listUsers fails (e.g., bad private key, network timeout), this catches it.
+    return {
+      status: 'down',
+      error: error.message,
+    };
   }
 };
 

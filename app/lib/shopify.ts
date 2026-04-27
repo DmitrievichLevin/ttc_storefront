@@ -69,7 +69,7 @@ const QUERIES = {
     `,
     BY_PHONE: `
         query CustomerByPhone($phone: String!) {
-            customer: customerByIdentifier(identifier: { phone: $phone }) {
+            customer: customerByIdentifier(identifier: { phoneNumber: $phone }) {
                 ...UserFields
             }
         }
