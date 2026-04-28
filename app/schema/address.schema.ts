@@ -47,7 +47,7 @@ export type IAddress = z.infer<typeof AddressSchema>;
  * 3. The Utility Namespace
  */
 interface AddressInterface {
-    (data: IAddress): Partial<IShopifyAddress>;
+    (data: IAddress): IAddress;
     (data: IShopifyAddress): IAddress;
     schema: typeof AddressSchema;
     safeParse: (data: unknown) => ReturnType<typeof AddressSchema.safeParse>;

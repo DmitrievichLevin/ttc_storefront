@@ -365,6 +365,12 @@ export const CreateUserBase = async (
 
 };
 
+export interface Patch<R, P> {
+    id: ShopifyCustomerId;
+    resource: R;
+    patch: P;
+}
+
 export interface IUserUpdateAddressData {
     id: ShopifyCustomerId;
     newAddress: IAddress;
@@ -414,7 +420,16 @@ const UpdateUserAddress = async (
         currentAddress,
     }: IUserUpdateAddressData
 ): Promise<Partial<IShopifyUser>> => {
-    const addressInput = Address(newAddress);
+    const address = Address(newAddress);
+
+    const addressInput = {
+        address1: address.street,
+        address2: address.secondary_address,
+        city: address.place,
+        provinceCode: address.region_code,
+        zip: address.postcode,
+        countryCode: address.country_code,
+    };
     let targetId = currentAddress?.id;
 
     // 1. Create the address if we don't have a target
