@@ -108,3 +108,49 @@ export async function DELETE() {
     );
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const session = await getSession();
+
+    // 1. Protection Check
+    if (!session.isLoggedIn || !session.shopifyId) {
+      return Response.json(
+        { error: 'Unauthorized. Please log in.' },
+        { status: 401 },
+      );
+    }
+
+    const body = await req.json();
+
+    // 2. Construct Payload Securely
+    // Forcibly inject the session ID so users cannot update other accounts
+    const updatePayload = {
+      ...body,
+      id: session.shopifyId,
+    };
+
+    // 3. Execute Dynamic Update
+    // The utility will route to the correct update function based on payload shape
+    await User.update(updatePayload);
+
+    // 4. Data Parity
+    // Rather than mapping the partial response, immediately re-fetch the user.
+    // This ensures the frontend receives the exact same IUser shape as GET/POST.
+    const res = await User(session.shopifyId as string);
+
+    if (!res.user) {
+      throw new Error(
+        'Update succeeded but failed to retrieve refreshed user profile.',
+      );
+    }
+
+    return Response.json({ success: true, user: res.user }, { status: 200 });
+  } catch (error: any) {
+    console.error('[PATCH_AUTH_ERROR]:', error.message);
+    return Response.json(
+      { error: error.message || 'Failed to update user profile.' },
+      { status: 500 },
+    );
+  }
+}

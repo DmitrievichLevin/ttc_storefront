@@ -1,3 +1,4 @@
+import { Address } from '../schema/address.schema';
 import { IShopifyUser } from '../schema/user.schema';
 import validate from '../utils/validate';
 
@@ -363,3 +364,102 @@ export const CreateUserBase = async (
     return response.data.customerCreate.customer;
 
 };
+
+export interface IUserUpdateAddressData {
+    id: ShopifyCustomerId;
+    newAddress: IAddress;
+    currentAddress: IShopifyAddress | null;
+}
+
+interface UserUpdateInterface {
+    // Overload 1: Specifically for the DefaultAddress
+    (update: IUserUpdateAddressData): Promise<{ user: Partial<IShopifyUser> }>;
+}
+
+
+
+// 1. Use the dedicated Address Creation mutation for precise ID returns
+const CREATE_ADDRESS_MUTATION = `
+  mutation CustomerAddressCreate($customerId: ID!, $address: MailingAddressInput!) {
+    customerAddressCreate(customerId: $customerId, address: $address) {
+      customerAddress {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+const UPDATE_USER_ADDRESS_MUTATION = `
+  mutation CustomerAddressDefault($addressId: ID!, $customerId: ID!) {
+    customerUpdateDefaultAddress(addressId: $addressId, customerId: $customerId) {
+      customer {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+const UpdateUserAddress = async (
+    {
+        id,
+        newAddress,
+        currentAddress,
+    }: IUserUpdateAddressData
+): Promise<Partial<IShopifyUser>> => {
+    const addressInput = Address(newAddress);
+    let targetId = currentAddress?.id;
+
+    // 1. Create the address if we don't have a target
+    if (!targetId) {
+        const { data } = await shopifyFetch<any>({
+            query: CREATE_ADDRESS_MUTATION,
+            variables: { customerId: id, address: addressInput },
+        });
+
+        const createErrors = data.customerAddressCreate?.userErrors;
+        if (createErrors?.length > 0) {
+            throw new Error(`Address creation failed: ${createErrors[0].message}`);
+        }
+
+        // Safely extract the new ID
+        targetId = data.customerAddressCreate.customerAddress.id;
+    }
+
+
+    // 2. Set the address as the default
+    const response = await shopifyFetch<any>({
+        query: UPDATE_USER_ADDRESS_MUTATION,
+        variables: { addressId: targetId, customerId: id },
+    });
+
+    // FIXED: Access the correct mutation name in the response object
+    const updateErrors = response.data.customerUpdateDefaultAddress?.userErrors;
+    if (updateErrors?.length > 0) {
+        throw new Error(`Default address update failed: ${updateErrors[0].message}`);
+    }
+
+    return response.data.customerUpdateDefaultAddress.customer;
+};
+
+const UserUpdateBase = (async (data: any): Promise<{ user: Partial<IShopifyUser> }> => {
+    if (data?.id && data?.newAddress) {
+        const result = await UpdateUserAddress(data);
+        return { user: result };
+    }
+
+    // Clean, defensive error reporting
+    const providedKeys = typeof data === 'object' && data !== null ? Object.keys(data).join(', ') : typeof data;
+    throw new Error(`[User Update Utility]: Invalid payload. Provided keys: [${providedKeys}].`);
+
+}) as UserUpdateInterface;
+
+
+export const UserUpdate = Object.assign(UserUpdateBase, {});

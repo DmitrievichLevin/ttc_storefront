@@ -3,7 +3,7 @@ import { AddressSchema, ISO8601Schema } from './address.schema';
 import { IOrder, OrderSchema } from './order.schema';
 import validate from '../utils/validate';
 import { auth } from '@/app/lib/firebase';
-import { CreateUserBase, IUserLoginData, UserQuery } from '../lib/shopify';
+import { CreateUserBase, IUserLoginData, UserQuery, UserUpdate } from '../lib/shopify';
 
 
 export interface IShopifyUser {
@@ -50,6 +50,7 @@ interface UserLookupResult {
 interface UserInterface {
   (data: string): Promise<UserLookupResult>;
   schema: typeof UserSchema;
+  update: (data: unknown) => Promise<{ user: Partial<IShopifyUser> }>;
   safeParse: (data: unknown) => ReturnType<typeof UserSchema.safeParse>;
 }
 
@@ -77,7 +78,7 @@ const UserBase = (async (data: string): Promise<UserLookupResult> => {
   else {
     throw new Error("[User Utility]: Invalid identifier format.");
   }
-  console.log("raw user", rawUser);
+
   // 2. Return User if found
   if (rawUser) {
     const user: IUser = {
@@ -127,5 +128,6 @@ const UserBase = (async (data: string): Promise<UserLookupResult> => {
 
 export const User = Object.assign(UserBase, {
   schema: UserSchema,
+  update: UserUpdate,
   safeParse: (data: unknown) => UserSchema.safeParse(data),
 });

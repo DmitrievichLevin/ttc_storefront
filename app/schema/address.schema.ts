@@ -41,7 +41,7 @@ export const AddressesV2 = z.object({ edges: z.array(AddressSchema) });
  * 2. Single Source of Truth for Types
  * Automatically infer the interface from the schema.
  */
-type IAddress = z.infer<typeof AddressSchema>;
+export type IAddress = z.infer<typeof AddressSchema>;
 
 /**
  * 3. The Utility Namespace
