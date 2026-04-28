@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     await session.save(); // Encrypts and sets the cookie automatically
 
-    return Response.json({ success: true });
+    return Response.json({ success: true, isLoggedIn: true, user: res.user });
   } catch (error: any) {
     console.error('[AUTH_ERROR]:', error.message);
     return Response.json(
