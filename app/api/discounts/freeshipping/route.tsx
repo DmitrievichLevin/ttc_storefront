@@ -4,36 +4,27 @@ import { shopifyFetch } from '@/app/lib/shopify';
 
 // as Shopify handles Free Shipping under a different fragment than Basic discounts.
 const GET_DISCOUNTS_QUERY = `
-  query getActiveDiscounts {
-    codeDiscountNodes(first: 10, query: "status:ACTIVE") {
-      edges {
-        node {
-          id
-          codeDiscount {
-            ... on DiscountCodeBasic {
-              title
-              summary
-              codes(first: 1) {
-                nodes {
-                  code
-                }
-              }
-            }
-            ... on DiscountCodeFreeShipping {
-              title
-              summary
-              codes(first: 1) {
-                nodes {
-                  code
-                }
-              }
-            }
+  mutation discountAutomaticFreeShippingCreate($automaticFreeShippingDiscount: DiscountAutomaticFreeShippingInput!) {
+  discountAutomaticFreeShippingCreate(automaticFreeShippingDiscount: $automaticFreeShippingDiscount) {
+    automaticDiscountNode {
+      id
+      automaticDiscount {
+        ... on DiscountAutomaticFreeShipping {
+          title
+          startsAt
+          endsAt
+          minimumSubtotal {
+            amount
           }
         }
       }
     }
+    userErrors {
+      field
+      message
+    }
   }
-`;
+}`;
 
 export async function GET(req: Request) {
   try {
