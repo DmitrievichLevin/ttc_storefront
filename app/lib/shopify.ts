@@ -407,7 +407,6 @@ const CREATE_ADDRESS_MUTATION = `mutation customerAddressCreate(
     userErrors {
       field
       message
-      code
     }
   }
 }`;
