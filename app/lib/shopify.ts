@@ -404,22 +404,31 @@ const CREATE_ADDRESS_MUTATION = `
   }
 `;
 
-const NEW_ADDRESS = `mutation customerAddressCreate($customerId: ID!, $address: MailingAddressInput!, $setAsDefault: Boolean) {
-  customerAddressCreate(customerId: $customerId, address: $address, setAsDefault: $setAsDefault) {
+const NEW_ADDRESS = `mutation customerAddressCreate(
+  $customerId: ID!
+  $address: MailingAddressInput!
+  $setAsDefault: Boolean
+) {
+  customerAddressCreate(
+    customerId: $customerId
+    address: $address
+    setAsDefault: $setAsDefault
+  ) {
     address {
       address1
       address2
       city
       provinceCode
       zip
-      countryCode
+      countryCodeV2
     }
     userErrors {
       field
       message
+      code
     }
   }
-}`
+}`;
 
 const UPDATE_USER_ADDRESS_MUTATION = `
   mutation CustomerAddressDefault($addressId: ID!, $customerId: ID!) {
@@ -443,14 +452,14 @@ const UpdateUserAddress = async (
     }: IUserUpdateAddressData
 ): Promise<Partial<IShopifyUser>> => {
     const address = Address(newAddress);
-
+    console.error("Null address", address);
     const addressInput = {
-        address1: address.street,
-        address2: address.secondary_address,
-        city: address.place,
-        provinceCode: address.region_code,
-        zip: address.postcode,
-        countryCode: address.country_code,
+        address1: newAddress.street,
+        address2: newAddress.secondary_address,
+        city: newAddress.place,
+        provinceCode: newAddress.region_code,
+        zip: newAddress.postcode,
+        countryCode: newAddress.country_code,
     };
     let targetId = currentAddress?.id;
 
