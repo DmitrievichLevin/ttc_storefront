@@ -30,8 +30,8 @@ export const AddressSchema = z.object({
 
     country: z.literal("United States"),
     country_code: z.literal("US"),
-    label: z.string().trim().min(1, "Label is required").max(250),
-    value: z.string().trim().min(1, "Mapbox ID is required").max(100),
+    label: z.string().trim().min(1).max(250).optional(),
+    value: z.string().trim().min(1).max(100).optional(),
 }).strict() // Optional: Uncomment to strip out/reject any unrecognized fields
     .superRefine(cottageFoodRefinement);
 
