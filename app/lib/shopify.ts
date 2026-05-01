@@ -422,6 +422,7 @@ const UpdateUserAddress = async (
 ): Promise<Partial<IShopifyUser>> => {
     const address = Address(newAddress);
 
+
     const addressInput = {
         address1: address.street,
         address2: address.secondary_address,
@@ -445,7 +446,7 @@ const UpdateUserAddress = async (
         }
 
         // Safely extract the new ID
-        targetId = data.customerAddressCreate.customerAddress.id;
+        targetId = data.customerAddressCreate.address.id;
     }
 
 
