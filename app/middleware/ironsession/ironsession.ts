@@ -26,7 +26,7 @@ export const sessionOptions: SessionOptions = {
         // If you eventually host both on the same root domain (e.g., store.com and api.store.com), you can change this to 'lax'.
         // FOR_DEV
         domain: ".totaltreatcreation.com",
-        sameSite: 'lax' as const,
+        sameSite: process.env.NODE_ENV === "production" ? 'lax' : 'none',
         httpOnly: true,     // XSS Protection
         maxAge: 60 * 60 * 24 * 7,
     },
