@@ -42,7 +42,7 @@ export async function GET(req: Request) {
     });
 
     const nodes = response.data?.codeDiscountNodes?.edges || [];
-
+    console.log('nodes: ', response.data?.codeDiscountNodes?.edges);
     // Filter through the active discounts to find your specific Free Shipping code.
     // Adjust the .includes() string to match whatever you named the discount in Shopify admin.
     const freeShippingNode = nodes.find(({ node }: any) => {
