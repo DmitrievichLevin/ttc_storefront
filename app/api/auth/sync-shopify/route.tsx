@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
       res.user = creationResult.user;
     }
-
+    console.log('track session', session);
     // 3. Update Encrypted Session (No PII)
     session.shopifyId = res.user!.id;
     session.fuid = res.user!.fuid;
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 export async function GET() {
   try {
     const session = await getSession(); //
-
+    console.log('track session', session);
     // 1. Protection Check: If no session exists, return a clear 'logged out' state
     if (!session.isLoggedIn || !session.shopifyId) {
       return Response.json(
@@ -84,6 +84,7 @@ export async function GET() {
     });
   } catch (error: any) {
     console.error('[GET_AUTH_ERROR]:', error.message);
+
     return Response.json(
       { error: 'Failed to retrieve session data.' },
       { status: 500 },
@@ -112,7 +113,7 @@ export async function DELETE() {
 export async function PATCH(req: Request) {
   try {
     const session = await getSession();
-
+    console.log('track session', session);
     // 1. Protection Check
     if (!session.isLoggedIn || !session.shopifyId) {
       return Response.json(

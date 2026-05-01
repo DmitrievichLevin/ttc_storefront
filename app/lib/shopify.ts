@@ -462,12 +462,9 @@ const UpdateUserAddress = async (
     });
     console.log("track data", data);
     const createErrors = data?.customerAddressCreate?.userErrors;
-    const errorMap = createErrors?.reduce((d: any, v: any, i: number) => {
-        d[i] = v?.message;
-        return d;
-    }, {});
-    console.log("track data", errorMap);
+
     if (createErrors?.length > 0) {
+        console.log("track data", createErrors[0].message);
         throw new Error(`Address creation failed: ${createErrors[0].message}`);
     }
 
