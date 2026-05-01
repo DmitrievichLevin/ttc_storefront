@@ -458,7 +458,7 @@ const UpdateUserAddress = async (
     // if (!targetId) {
     const { data } = await shopifyFetch<any>({
         query: NEW_ADDRESS,
-        variables: { customerId: id, address: addressInput },
+        variables: { customerId: id, address: addressInput, setAsDefault: true },
     });
     console.log("track data", data.customerAddressCreate);
     const createErrors = data.customerAddressCreate?.userErrors;
