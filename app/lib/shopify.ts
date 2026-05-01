@@ -388,7 +388,7 @@ interface UserUpdateInterface {
 const CREATE_ADDRESS_MUTATION = `
   mutation CustomerAddressCreate($customerId: ID!, $address: MailingAddressInput!) {
     customerAddressCreate(customerId: $customerId, address: $address) {
-      customerAddress {
+      address {
         id
       }
       userErrors {
