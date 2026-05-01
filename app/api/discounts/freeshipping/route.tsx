@@ -17,9 +17,13 @@ const GET_DISCOUNTS_QUERY = `
                   endsAt
                   minimumRequirement {
                     ... on DiscountMinimumSubtotal {
-                      subtotal {
+                      greaterThanOrEqualToSubtotal {
                         amount
+                        currencyCode
                       }
+                    }
+                    ... on DiscountMinimumQuantity {
+                      greaterThanOrEqualToQuantity
                     }
                   }
                 }
