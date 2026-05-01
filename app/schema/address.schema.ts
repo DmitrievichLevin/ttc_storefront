@@ -66,15 +66,7 @@ const AddressBase = ((data: unknown): any => {
     // Logic for Internal -> Shopify
     if (isInternal) {
         const validated = AddressSchema.parse(data);
-        return {
-            address1: validated.street,
-            address2: validated.secondary_address,
-            city: validated.place,
-            zip: validated.postcode,
-            province: validated.region,
-            provinceCode: validated.region_code,
-            countryCodeV2: validated.country_code,
-        };
+        return validated;
     }
 
     // Logic for Shopify -> Internal

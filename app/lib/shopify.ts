@@ -432,10 +432,6 @@ const UpdateUserAddress = async (
         countryCode: address.country_code,
     };
 
-    if (!addressInput.address1) {
-        throw new Error("It's the Address Schema thing.");
-    }
-
     const { data } = await shopifyFetch<any>({
         query: CREATE_ADDRESS_MUTATION,
         variables: { customerId: id, address: addressInput, setAsDefault: true },
