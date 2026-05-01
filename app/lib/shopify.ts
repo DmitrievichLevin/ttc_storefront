@@ -460,9 +460,9 @@ const UpdateUserAddress = async (
         query: NEW_ADDRESS,
         variables: { customerId: id, address: addressInput, setAsDefault: true },
     });
-    console.log("track data", data.customerAddressCreate);
-    const createErrors = data.customerAddressCreate?.userErrors;
-    const errorMap = createErrors.reduce((d: any, v: any, i: number) => {
+    console.log("track data", data);
+    const createErrors = data?.customerAddressCreate?.userErrors;
+    const errorMap = createErrors?.reduce((d: any, v: any, i: number) => {
         d[i] = v?.message;
         return d;
     }, {});
