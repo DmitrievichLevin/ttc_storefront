@@ -386,9 +386,9 @@ interface UserUpdateInterface {
 
 // 1. Use the dedicated Address Creation mutation for precise ID returns
 const CREATE_ADDRESS_MUTATION = `
-  mutation CustomerAddressCreate($customerId: ID!, $address: MailingAddressInput!, $setAsDefault: Boolean) {
-    customerAddressCreate(customerId: $customerId, address: $address, setAsDefault: $setAsDefault) {
-    address {
+  mutation CustomerAddressCreate($customerId: ID!, $address: MailingAddressInput!) {
+    customerAddressCreate(customerId: $customerId, address: $address) {
+      address {
       address1
       address2
       city
@@ -404,6 +404,36 @@ const CREATE_ADDRESS_MUTATION = `
   }
 `;
 
+const NEW_ADDRESS = `mutation customerAddressCreate($customerId: ID!, $address: MailingAddressInput!, $setAsDefault: Boolean) {
+  customerAddressCreate(customerId: $customerId, address: $address, setAsDefault: $setAsDefault) {
+    address {
+      address1
+      address2
+      city
+      provinceCode
+      zip
+      countryCode
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}`
+
+const UPDATE_USER_ADDRESS_MUTATION = `
+  mutation CustomerAddressDefault($addressId: ID!, $customerId: ID!) {
+    customerUpdateDefaultAddress(addressId: $addressId, customerId: $customerId) {
+      customer {
+        id
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
 
 const UpdateUserAddress = async (
     {
@@ -414,7 +444,6 @@ const UpdateUserAddress = async (
 ): Promise<Partial<IShopifyUser>> => {
     const address = Address(newAddress);
 
-
     const addressInput = {
         address1: address.street,
         address2: address.secondary_address,
@@ -423,23 +452,29 @@ const UpdateUserAddress = async (
         zip: address.postcode,
         countryCode: address.country_code,
     };
-
+    let targetId = currentAddress?.id;
 
     // 1. Create the address if we don't have a target
+    // if (!targetId) {
     const { data } = await shopifyFetch<any>({
-        query: CREATE_ADDRESS_MUTATION,
+        query: NEW_ADDRESS,
         variables: { customerId: id, address: addressInput },
     });
-    console.log("track response", data);
+    console.log("track data", data.customerAddressCreate);
     const createErrors = data.customerAddressCreate?.userErrors;
+    const errorMap = createErrors.reduce((d: any, v: any, i: number) => {
+        d[i] = v?.message;
+        return d;
+    }, {});
+    console.log("track data", errorMap);
     if (createErrors?.length > 0) {
-        createErrors.forEach((err: any) => console.log(err));
         throw new Error(`Address creation failed: ${createErrors[0].message}`);
     }
 
     // Safely extract the new ID
-    return data.customerAddressCreate?.address?.id;
-
+    targetId = data.customerAddressCreate.customerAddress?.id;
+    return data.customerAddressCreate.customerAddress?.id;
+    // }
 
 
     // // 2. Set the address as the default
