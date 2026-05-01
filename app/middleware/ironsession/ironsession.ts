@@ -25,8 +25,9 @@ export const sessionOptions: SessionOptions = {
         // 'none' allows the cookie to be sent across completely different domains.
         // If you eventually host both on the same root domain (e.g., store.com and api.store.com), you can change this to 'lax'.
         // FOR_DEV
-        domain: ".totaltreatcreation.com",
-        sameSite: process.env.NODE_ENV === "production" ? 'lax' : 'none',
+        // domain: ".totaltreatcreation.com",
+        // sameSite: 'lax',
+        sameSite: 'none',
         httpOnly: true,     // XSS Protection
         maxAge: 60 * 60 * 24 * 7,
     },
