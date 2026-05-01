@@ -14,8 +14,8 @@ export function middleware(request: NextRequest) {
     // 1. Preflight (OPTIONS) Handling
     if (request.method === 'OPTIONS') {
         const preflightHeaders = {
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Shopify-Storefront-Access-Token',
             'Access-Control-Max-Age': '86400', // Cache preflight response for 24 hours
         };
 
