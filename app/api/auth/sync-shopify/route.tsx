@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request, res: Response) {
+export async function GET() {
   try {
     const session = await getSession(); //
 
