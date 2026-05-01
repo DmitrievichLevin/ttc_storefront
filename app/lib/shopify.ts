@@ -386,10 +386,15 @@ interface UserUpdateInterface {
 
 // 1. Use the dedicated Address Creation mutation for precise ID returns
 const CREATE_ADDRESS_MUTATION = `
-  mutation CustomerAddressCreate($customerId: ID!, $address: MailingAddressInput!) {
-    customerAddressCreate(customerId: $customerId, address: $address) {
-      address {
-        id
+  mutation CustomerAddressCreate($customerId: ID!, $address: MailingAddressInput!, $setAsDefault: Boolean) {
+    customerAddressCreate(customerId: $customerId, address: $address, setAsDefault: $setAsDefault) {
+    address {
+      address1
+      address2
+      city
+      provinceCode
+      zip
+      countryCode
       }
       userErrors {
         field
@@ -399,19 +404,6 @@ const CREATE_ADDRESS_MUTATION = `
   }
 `;
 
-const UPDATE_USER_ADDRESS_MUTATION = `
-  mutation CustomerAddressDefault($addressId: ID!, $customerId: ID!) {
-    customerUpdateDefaultAddress(addressId: $addressId, customerId: $customerId) {
-      customer {
-        id
-      }
-      userErrors {
-        field
-        message
-      }
-    }
-  }
-`;
 
 const UpdateUserAddress = async (
     {
@@ -431,38 +423,37 @@ const UpdateUserAddress = async (
         zip: address.postcode,
         countryCode: address.country_code,
     };
-    let targetId = currentAddress?.id;
+
 
     // 1. Create the address if we don't have a target
-    if (!targetId) {
-        const { data } = await shopifyFetch<any>({
-            query: CREATE_ADDRESS_MUTATION,
-            variables: { customerId: id, address: addressInput },
-        });
-
-        const createErrors = data.customerAddressCreate?.userErrors;
-        if (createErrors?.length > 0) {
-            throw new Error(`Address creation failed: ${createErrors[0].message}`);
-        }
-
-        // Safely extract the new ID
-        targetId = data.customerAddressCreate.address.id;
-    }
-
-
-    // 2. Set the address as the default
-    const response = await shopifyFetch<any>({
-        query: UPDATE_USER_ADDRESS_MUTATION,
-        variables: { addressId: targetId, customerId: id },
+    const { data } = await shopifyFetch<any>({
+        query: CREATE_ADDRESS_MUTATION,
+        variables: { customerId: id, address: addressInput },
     });
 
-    // FIXED: Access the correct mutation name in the response object
-    const updateErrors = response.data.customerUpdateDefaultAddress?.userErrors;
-    if (updateErrors?.length > 0) {
-        throw new Error(`Default address update failed: ${updateErrors[0].message}`);
+    const createErrors = data.customerAddressCreate?.userErrors;
+    if (createErrors?.length > 0) {
+        throw new Error(`Address creation failed: ${createErrors[0].message}`);
     }
 
-    return response.data.customerUpdateDefaultAddress.customer;
+    // Safely extract the new ID
+    return data.customerAddressCreate.address.id;
+
+
+
+    // // 2. Set the address as the default
+    // const response = await shopifyFetch<any>({
+    //     query: UPDATE_USER_ADDRESS_MUTATION,
+    //     variables: { addressId: targetId, customerId: id },
+    // });
+
+    // // FIXED: Access the correct mutation name in the response object
+    // const updateErrors = response.data.customerUpdateDefaultAddress?.userErrors;
+    // if (updateErrors?.length > 0) {
+    //     throw new Error(`Default address update failed: ${updateErrors[0].message}`);
+    // }
+
+    // return response.data.customerUpdateDefaultAddress.customer;
 };
 
 const UserUpdateBase = (async (data: any): Promise<{ user: Partial<IShopifyUser> }> => {
