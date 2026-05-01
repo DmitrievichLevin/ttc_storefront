@@ -425,7 +425,6 @@ const NEW_ADDRESS = `mutation customerAddressCreate(
     userErrors {
       field
       message
-      code
     }
   }
 }`;
