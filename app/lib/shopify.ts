@@ -435,9 +435,9 @@ const UpdateUserAddress = async (
     if (createErrors?.length > 0) {
         throw new Error(`Address creation failed: ${createErrors[0].message}`);
     }
-
+    console.log("track response", data);
     // Safely extract the new ID
-    return data.customerAddressCreate.address.id;
+    return data.customerAddressCreate?.address?.id;
 
 
 
