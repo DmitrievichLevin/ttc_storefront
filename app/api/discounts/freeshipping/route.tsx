@@ -144,12 +144,7 @@ export async function GET(
       const discount = node.automaticDiscount;
       if (!discount) return false;
 
-      const isActive = discount.status === 'ACTIVE';
-      const title = discount.title?.toLowerCase() || '';
-      return (
-        isActive &&
-        (title.includes('free shipping') || title.includes('freedelivery'))
-      );
+      return discount.status === 'ACTIVE';
     });
 
     if (!freeShippingNode) {
