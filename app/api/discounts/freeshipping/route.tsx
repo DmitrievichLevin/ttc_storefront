@@ -90,6 +90,43 @@ export interface FrontendDiscountErrorResponse {
   error: string;
 }
 
+// const example = {
+//   data: {
+//     automaticDiscountNodes: {
+//       edges: [
+//         {
+//           node: {
+//             id: 'gid://shopify/DiscountAutomaticNode/2059820105969',
+//             automaticDiscount: {
+//               title: 'Endowment',
+//               status: 'ACTIVE',
+//               startsAt: '2026-05-01T20:14:15Z',
+//               endsAt: null,
+//               minimumRequirement: {
+//                 greaterThanOrEqualToSubtotal: {
+//                   amount: '50.0',
+//                   currencyCode: 'USD',
+//                 },
+//               },
+//             },
+//           },
+//         },
+//       ],
+//     },
+//   },
+//   extensions: {
+//     cost: {
+//       requestedQueryCost: 14,
+//       actualQueryCost: 4,
+//       throttleStatus: {
+//         maximumAvailable: 2000.0,
+//         currentlyAvailable: 1996,
+//         restoreRate: 100.0,
+//       },
+//     },
+//   },
+// };
+
 /**
  * A union type representing the possible responses to the frontend.
  * Frontend code should check the `success` boolean to narrow the type.
@@ -99,34 +136,36 @@ export type FrontendDiscountResponse =
   | FrontendDiscountErrorResponse;
 
 const GET_DISCOUNTS_QUERY = `
-  query GetFreeShippingDiscounts {
-    automaticDiscountNodes(first: 10, query: "type:free_shipping") {
-      edges {
-        node {
-          id
-          automaticDiscount {
-            ... on DiscountAutomaticFreeShipping {
-              title
-              status
-              startsAt
-              endsAt
-              minimumRequirement {
-                ... on DiscountMinimumSubtotal {
-                  greaterThanOrEqualToSubtotal {
-                    amount
-                    currencyCode
-                  }
+  query GetActiveAutomaticDiscounts {
+  automaticDiscountNodes(first: 10, query: "status:active") {
+    edges {
+      node {
+        id
+        automaticDiscount {
+          ... on DiscountAutomaticFreeShipping {
+            title
+            status
+            startsAt
+            endsAt
+            minimumRequirement {
+              ... on DiscountMinimumSubtotal {
+                greaterThanOrEqualToSubtotal {
+                  amount
+                  currencyCode
                 }
-                ... on DiscountMinimumQuantity {
-                  greaterThanOrEqualToQuantity
-                }
+              }
+              ... on DiscountMinimumQuantity {
+                greaterThanOrEqualToQuantity
               }
             }
           }
+          # Note: If you want other types (Percentage/Fixed Amount), 
+          # you would add their fragments here.
         }
       }
     }
   }
+}
 `;
 
 export async function GET(
@@ -139,15 +178,8 @@ export async function GET(
     });
 
     const nodes = response.data?.automaticDiscountNodes?.edges || [];
-    console.log(response.data);
-    const freeShippingNode = nodes.find(({ node }) => {
-      const discount = node.automaticDiscount;
-      if (!discount) return false;
 
-      return discount.status === 'ACTIVE';
-    });
-
-    if (!freeShippingNode) {
+    if (nodes.length < 1) {
       // 2. Typescript will ensure this matches FrontendDiscountErrorResponse
       return NextResponse.json(
         {
@@ -158,7 +190,7 @@ export async function GET(
       );
     }
 
-    const discountData = freeShippingNode.node.automaticDiscount;
+    const discountData = nodes[0].node.automaticDiscount;
 
     // 3. Typescript will ensure this matches FrontendDiscountSuccessResponse
     return NextResponse.json(
