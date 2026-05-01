@@ -433,6 +433,7 @@ const UpdateUserAddress = async (
     console.log("track response", data);
     const createErrors = data.customerAddressCreate?.userErrors;
     if (createErrors?.length > 0) {
+        createErrors.forEach((err: any) => console.log(err));
         throw new Error(`Address creation failed: ${createErrors[0].message}`);
     }
 
