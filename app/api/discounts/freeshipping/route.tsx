@@ -139,7 +139,7 @@ export async function GET(
     });
 
     const nodes = response.data?.automaticDiscountNodes?.edges || [];
-    console.log(response.data?.automaticDiscountNodes?.edges?.[0]);
+    console.log(response.data);
     const freeShippingNode = nodes.find(({ node }) => {
       const discount = node.automaticDiscount;
       if (!discount) return false;
